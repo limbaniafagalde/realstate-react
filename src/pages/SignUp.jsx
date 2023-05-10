@@ -1,8 +1,12 @@
 import React from 'react'
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {db} from "../firebase";
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { toast } from 'react-toastify';
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +18,8 @@ export default function SignUp() {
   });
 
   const{name, email, password} = formData; //destructured email and pass from formData
- 
+  const navigate = useNavigate();
+
  function onChange(e){
   setFormData((prevState) => ({
     ...prevState,
@@ -22,6 +27,23 @@ export default function SignUp() {
     
   })) //whatever we type will be saved in the formData
 
+ }
+
+ async function onSubmit(e){
+  e.preventDefault(); //we dont want refresh
+  try {
+    const auth = getAuth();
+    const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+    updateProfile(auth.currentUser, { displayName: name})
+    const user = userCredentials.user
+    const formDataCopy = {...formData}
+    delete formDataCopy.password
+    formDataCopy.timestamp =  serverTimestamp();
+    await setDoc(doc(db, "users", user.uid), formDataCopy)
+    navigate("/")
+  } catch (error) {
+    toast.error("Something went wrong with the registration")
+  }
  }
 
  return (
@@ -34,12 +56,12 @@ export default function SignUp() {
           />
         </div>
         <div className="w-full md:w-[60%] lg:w-[40%] lg:ml-10">
-          <form>
+          <form onSubmit={onSubmit}>
             <input 
               className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out mb-5" 
               type="text" 
               id="name" 
-              value={email} 
+              value={name} 
               onChange={onChange} 
               placeholder= "Full Name"
            />

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import OAuth from '../components/OAuth';
 
+
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
  
@@ -23,6 +24,7 @@ export default function SignIn() {
 
  }
 
+
  return (
     <section>
       <h1 className=" text-2xl text-center mt-6 font-bold">Sign In</h1>
@@ -33,7 +35,7 @@ export default function SignIn() {
           />
         </div>
         <div className="w-full md:w-[60%] lg:w-[40%] lg:ml-10">
-          <form>
+          <form> 
             <input 
               className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out mb-5" 
               type="email" 
