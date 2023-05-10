@@ -1,9 +1,10 @@
 import React from 'react'
 import { AiFillEyeInvisible, AiFillEye } from 'react-icons/ai';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
-
+import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { toast } from "react-toastify";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,7 +15,8 @@ export default function SignIn() {
   });
 
   const{email, password} = formData; //destructured email and pass from formData
- 
+  const navigate = useNavigate();
+
  function onChange(e){
   setFormData((prevState) => ({
     ...prevState,
@@ -22,6 +24,19 @@ export default function SignIn() {
     
   })) //whatever we type will be saved in the formData
 
+ }
+
+ async function onSubmit(e){
+  e.preventDefault()
+  try {
+    const auth = getAuth()
+    const userCredentials = await signInWithEmailAndPassword(auth, email, password)
+    if(userCredentials.user){
+      navigate("/");
+    }
+  } catch (error) {
+    toast.error("Incorrect credentials")
+  }
  }
 
 
@@ -35,7 +50,7 @@ export default function SignIn() {
           />
         </div>
         <div className="w-full md:w-[60%] lg:w-[40%] lg:ml-10">
-          <form> 
+          <form onSubmit={onSubmit}> 
             <input 
               className="w-full px-4 py-2 text-xl text-gray-700 bg-white border-gray-300 rounded transition ease-in-out mb-5" 
               type="email" 
